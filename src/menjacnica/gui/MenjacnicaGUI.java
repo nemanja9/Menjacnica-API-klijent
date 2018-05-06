@@ -8,13 +8,22 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import menjacnica.URLConnection;
 import menjacnica.CurrencyLayerApiCommunication;
 import menjacnica.Zemlja;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class MenjacnicaGUI extends JFrame {
 
@@ -25,8 +34,8 @@ public class MenjacnicaGUI extends JFrame {
 	private JComboBox comboBox2;
 	private JLabel lblIznos;
 	private JLabel label;
-	private JTextField textField;
-	private JTextField textField_1;
+	private JTextField textField1;
+	private JTextField textField2;
 	private JButton btnKonvertuj;
 	LinkedList<Zemlja> zemlje = CurrencyLayerApiCommunication.getCountries();
 
@@ -62,12 +71,13 @@ public class MenjacnicaGUI extends JFrame {
 		contentPane.add(getComboBox2());
 		contentPane.add(getLblIznos());
 		contentPane.add(getLabel());
-		contentPane.add(getTextField());
-		contentPane.add(getTextField_1());
+		contentPane.add(getTextField1());
+		contentPane.add(getTextField2());
 		contentPane.add(getBtnKonvertuj());
 		dodajZemlje(comboBox1);
 		dodajZemlje(comboBox2);
 	}
+
 	private JLabel getLblIzValuteZemlje() {
 		if (lblIzValuteZemlje == null) {
 			lblIzValuteZemlje = new JLabel("Iz valute zemlje:");
@@ -75,6 +85,7 @@ public class MenjacnicaGUI extends JFrame {
 		}
 		return lblIzValuteZemlje;
 	}
+
 	private JLabel getLblUValutuZemlje() {
 		if (lblUValutuZemlje == null) {
 			lblUValutuZemlje = new JLabel("U valutu zemlje:");
@@ -82,6 +93,7 @@ public class MenjacnicaGUI extends JFrame {
 		}
 		return lblUValutuZemlje;
 	}
+
 	private JComboBox getComboBox1() {
 		if (comboBox1 == null) {
 			comboBox1 = new JComboBox();
@@ -89,6 +101,7 @@ public class MenjacnicaGUI extends JFrame {
 		}
 		return comboBox1;
 	}
+
 	private JComboBox getComboBox2() {
 		if (comboBox2 == null) {
 			comboBox2 = new JComboBox();
@@ -96,6 +109,7 @@ public class MenjacnicaGUI extends JFrame {
 		}
 		return comboBox2;
 	}
+
 	private JLabel getLblIznos() {
 		if (lblIznos == null) {
 			lblIznos = new JLabel("Iznos:");
@@ -103,6 +117,7 @@ public class MenjacnicaGUI extends JFrame {
 		}
 		return lblIznos;
 	}
+
 	private JLabel getLabel() {
 		if (label == null) {
 			label = new JLabel("Iznos:");
@@ -110,29 +125,71 @@ public class MenjacnicaGUI extends JFrame {
 		}
 		return label;
 	}
-	private JTextField getTextField() {
-		if (textField == null) {
-			textField = new JTextField();
-			textField.setBounds(26, 156, 130, 26);
-			textField.setColumns(10);
+
+	private JTextField getTextField1() {
+		if (textField1 == null) {
+			textField1 = new JTextField();
+			textField1.setBounds(26, 156, 130, 26);
+			textField1.setColumns(10);
 		}
-		return textField;
+		return textField1;
 	}
-	private JTextField getTextField_1() {
-		if (textField_1 == null) {
-			textField_1 = new JTextField();
-			textField_1.setColumns(10);
-			textField_1.setBounds(276, 156, 130, 26);
+
+	private JTextField getTextField2() {
+		if (textField2 == null) {
+			textField2 = new JTextField();
+			textField2.setColumns(10);
+			textField2.setBounds(276, 156, 130, 26);
 		}
-		return textField_1;
+		return textField2;
 	}
+
 	private JButton getBtnKonvertuj() {
 		if (btnKonvertuj == null) {
 			btnKonvertuj = new JButton("Konvertuj");
+			btnKonvertuj.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Zemlja z1 = null, z2 = null;
+					for (int i = 0; i < zemlje.size(); i++) {
+						if (comboBox1.getSelectedItem().equals(zemlje.get(i).getName())) {
+							z1 = zemlje.get(i);
+						}
+						if (comboBox2.getSelectedItem().equals(zemlje.get(i).getName())) {
+							z2 = zemlje.get(i);
+						}
+					}
+					String s = z1.getCurrencyId() + "_";
+					s += z2.getCurrencyId();
+					String pros = s;
+					s = "http://free.currencyconverterapi.com/api/v3/convert?q=" + pros;
+					try {
+						s = URLConnection.getContent(s);
+						JsonParser p = new JsonParser();
+						JsonObject obj = p.parse(s).getAsJsonObject();
+						Gson g = new GsonBuilder().create();
+						int count = g.fromJson(obj.getAsJsonObject("query").getAsJsonPrimitive("count"), int.class);
+						if (count == 0) {
+							JOptionPane.showMessageDialog(null, "Ne postoji transakcija", "Greska",
+									JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+						double odnos = g.fromJson(
+								obj.getAsJsonObject("results").getAsJsonObject(pros).getAsJsonPrimitive("val"),
+								double.class);
+						Double d = new Double(odnos * Double.parseDouble(textField1.getText()));
+						textField2.setText(d.toString());
+
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+
 			btnKonvertuj.setBounds(151, 216, 117, 29);
 		}
 		return btnKonvertuj;
 	}
+
 	private void dodajZemlje(JComboBox zem) {
 		for (int i = 0; i < zemlje.size(); i++) {
 			zem.addItem(zemlje.get(i).getName());
