@@ -1,7 +1,8 @@
 package menjacnica.gui;
 
-import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 
 import javax.swing.JFrame;
@@ -15,6 +16,7 @@ import com.google.gson.JsonParser;
 
 import menjacnica.URLConnection;
 import menjacnica.CurrencyLayerApiCommunication;
+import menjacnica.Konverzije;
 import menjacnica.Zemlja;
 
 import javax.swing.JLabel;
@@ -23,10 +25,17 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.awt.event.ActionEvent;
 
 public class MenjacnicaGUI extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JLabel lblIzValuteZemlje;
 	private JLabel lblUValutuZemlje;
@@ -166,7 +175,7 @@ public class MenjacnicaGUI extends JFrame {
 						s = URLConnection.getContent(s);
 						JsonParser p = new JsonParser();
 						JsonObject obj = p.parse(s).getAsJsonObject();
-						Gson g = new GsonBuilder().create();
+						Gson g = new GsonBuilder().setPrettyPrinting().create();
 						int count = g.fromJson(obj.getAsJsonObject("query").getAsJsonPrimitive("count"), int.class);
 						if (count == 0) {
 							JOptionPane.showMessageDialog(null, "Ne postoji transakcija", "Greska",
@@ -178,6 +187,19 @@ public class MenjacnicaGUI extends JFrame {
 								double.class);
 						Double d = new Double(odnos * Double.parseDouble(textField1.getText()));
 						textField2.setText(d.toString());
+						
+						Konverzije k = new Konverzije();
+						k.setDatum(new GregorianCalendar().getTime());
+						k.setIzValuta(z1.getCurrencyId());
+						k.setuValuta(z2.getCurrencyId());
+						k.setKurs(odnos);
+						
+						
+						
+						String kon = g.toJson(k);
+						PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("data/log.json", true)));
+						writer.println(kon);
+						writer.close();
 
 					} catch (Exception e1) {
 						e1.printStackTrace();
