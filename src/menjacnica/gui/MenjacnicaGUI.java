@@ -1,6 +1,5 @@
 package menjacnica.gui;
 
-
 import java.awt.EventQueue;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -18,6 +17,7 @@ import menjacnica.URLConnection;
 import menjacnica.CurrencyLayerApiCommunication;
 import menjacnica.Konverzije;
 import menjacnica.Zemlja;
+import menjacnica.gui.kontroler.GUIKontroler;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -39,30 +39,13 @@ public class MenjacnicaGUI extends JFrame {
 	private JPanel contentPane;
 	private JLabel lblIzValuteZemlje;
 	private JLabel lblUValutuZemlje;
-	private JComboBox comboBox1;
-	private JComboBox comboBox2;
+	public static JComboBox comboBox1;
+	public static JComboBox comboBox2;
 	private JLabel lblIznos;
 	private JLabel label;
-	private JTextField textField1;
-	private JTextField textField2;
+	public static JTextField textField1;
+	public static JTextField textField2;
 	private JButton btnKonvertuj;
-	LinkedList<Zemlja> zemlje = CurrencyLayerApiCommunication.getCountries();
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MenjacnicaGUI frame = new MenjacnicaGUI();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
@@ -83,8 +66,8 @@ public class MenjacnicaGUI extends JFrame {
 		contentPane.add(getTextField1());
 		contentPane.add(getTextField2());
 		contentPane.add(getBtnKonvertuj());
-		dodajZemlje(comboBox1);
-		dodajZemlje(comboBox2);
+		GUIKontroler.dodajZemlje(comboBox1);
+		GUIKontroler.dodajZemlje(comboBox2);
 	}
 
 	private JLabel getLblIzValuteZemlje() {
@@ -158,52 +141,8 @@ public class MenjacnicaGUI extends JFrame {
 			btnKonvertuj = new JButton("Konvertuj");
 			btnKonvertuj.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Zemlja z1 = null, z2 = null;
-					for (int i = 0; i < zemlje.size(); i++) {
-						if (comboBox1.getSelectedItem().equals(zemlje.get(i).getName())) {
-							z1 = zemlje.get(i);
-						}
-						if (comboBox2.getSelectedItem().equals(zemlje.get(i).getName())) {
-							z2 = zemlje.get(i);
-						}
-					}
-					String s = z1.getCurrencyId() + "_";
-					s += z2.getCurrencyId();
-					String pros = s;
-					s = "http://free.currencyconverterapi.com/api/v3/convert?q=" + pros;
-					try {
-						s = URLConnection.getContent(s);
-						JsonParser p = new JsonParser();
-						JsonObject obj = p.parse(s).getAsJsonObject();
-						Gson g = new GsonBuilder().setPrettyPrinting().create();
-						int count = g.fromJson(obj.getAsJsonObject("query").getAsJsonPrimitive("count"), int.class);
-						if (count == 0) {
-							JOptionPane.showMessageDialog(null, "Ne postoji transakcija", "Greska",
-									JOptionPane.ERROR_MESSAGE);
-							return;
-						}
-						double odnos = g.fromJson(
-								obj.getAsJsonObject("results").getAsJsonObject(pros).getAsJsonPrimitive("val"),
-								double.class);
-						Double d = new Double(odnos * Double.parseDouble(textField1.getText()));
-						textField2.setText(d.toString());
-						
-						Konverzije k = new Konverzije();
-						k.setDatum(new GregorianCalendar().getTime());
-						k.setIzValuta(z1.getCurrencyId());
-						k.setuValuta(z2.getCurrencyId());
-						k.setKurs(odnos);
-						
-						
-						
-						String kon = g.toJson(k);
-						PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("data/log.json", true)));
-						writer.println(kon);
-						writer.close();
+					GUIKontroler.izvrsiZamenu();
 
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
 				}
 			});
 
@@ -212,9 +151,4 @@ public class MenjacnicaGUI extends JFrame {
 		return btnKonvertuj;
 	}
 
-	private void dodajZemlje(JComboBox zem) {
-		for (int i = 0; i < zemlje.size(); i++) {
-			zem.addItem(zemlje.get(i).getName());
-		}
-	}
 }

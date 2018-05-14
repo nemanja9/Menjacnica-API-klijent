@@ -7,3 +7,70 @@
   "uValuta": "BRL",
   "kurs": 0.050316
 }
+{
+  "datum": "May 14, 2018 7:47:59 PM",
+  "izValuta": "AFN",
+  "uValuta": "BDT",
+  "kurs": 1.169131
+}
+{
+  "datum": "May 14, 2018 7:48:16 PM",
+  "izValuta": "EUR",
+  "uValuta": "RSD",
+  "kurs": 117.898893
+}
+{
+  "datum": "May 14, 2018 7:52:15 PM",
+  "izValuta": "AFN",
+  "uValuta": "AFN",
+  "kurs": 1.0
+}
+{
+  "datum": "May 14, 2018 7:52:20 PM",
+  "izValuta": "AFN",
+  "uValuta": "AFN",
+  "kurs": 1.0
+}
+{
+  "datum": "May 14, 2018 7:52:40 PM",
+  "izValuta": "AFN",
+  "uValuta": "AFN",
+  "kurs": 1.0
+}
+{
+  "datum": {
+    "year": 2018,
+    "month": 4,
+    "dayOfMonth": 14,
+    "hourOfDay": 20,
+    "minute": 13,
+    "second": 39
+  },
+  "izValuta": "AFN",
+  "uValuta": "AFN",
+  "kurs": 1.0
+}
+{
+  "datum": "May 14, 2018 8:15:38 PM",
+  "izValuta": "AUD",
+  "uValuta": "AFN",
+  "kurs": 53.563332
+}
+{
+  "datum": "2018-22-14 20:22:45 CEST",
+  "izValuta": "KHR",
+  "uValuta": "AFN",
+  "kurs": 0.01759
+}
+{
+  "datum": "2018-05-14 20:26:09 CEST",
+  "izValuta": "AFN",
+  "uValuta": "AFN",
+  "kurs": 1.0
+}
+{
+  "datum": "2018-05-14 20:26:59.789",
+  "izValuta": "AFN",
+  "uValuta": "AFN",
+  "kurs": 1.0
+}
